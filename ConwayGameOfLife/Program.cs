@@ -36,7 +36,8 @@ namespace ConwayGameOfLife
 
         private void PlayGame()
         {
-
+            Thread th = Thread.CurrentThread;
+            th.Start();
             while (true)
             {
                 int liveOrDie = CountTheAllField();
