@@ -17,34 +17,41 @@ namespace ConwayGameOfLife
             Console.Read();
         }
 
-        bool [,] board;
+        private bool [,] currentBoard;
+        private bool[,] nextBoard;
         private readonly string ALIVE;
         private readonly string DEAD;
+        //        private ThreadStart displayThreadStart;
+        //        private Thread displayThread;
+        //        private TimeSpan interval;
+        //            displayThreadStart = new ThreadStart(DisplayCurrentBoard);
+        //            displayThread = new Thread(displayThreadStart);
+        //            interval = new TimeSpan(0, 0, 2);
 
         public Program()
         {
             ALIVE = "\u25A0";
             DEAD = "X";
-            board = new bool[20, 20];
-            FillBlankBoard();
+            currentBoard = new bool[20, 20];
+            nextBoard = new bool[20, 20];
+            FillBoardWithDead(currentBoard);
+            FillBoardWithDead(nextBoard);
             //AskUserForShape();
             //AskUserForAutoOrManual();
             //SeedBoardWithShape();
-            SeedBoardWithBlinker();
+            SeedBothBoardsWithBlinker();
             PlayGame();
         }
 
         private void PlayGame()
         {
-            Thread th = Thread.CurrentThread;
-            th.Start();
+            DisplayCurrentBoard();
             while (true)
             {
-                int liveOrDie = CountTheAllField();
-                DecideNextGen(liveOrDie);
+                DecideWhoWillLiveAndWhoWillDie();
+                Thread.Sleep(1000);
                 Console.Clear();
-
-                DisplayBoard();
+                DisplayCurrentBoard();
             }
         }
 
@@ -63,29 +70,33 @@ namespace ConwayGameOfLife
             throw new NotImplementedException();
         }
 
-        public void SeedBoardWithBlinker()
+        public void SeedBothBoardsWithBlinker()
         {
-            board[9, 9] = true;
-            board[9, 10] = true;
-            board[9, 11] = true;
-            DisplayBoard();
+            currentBoard[9, 9] = true;
+            currentBoard[9, 10] = true;
+            currentBoard[9, 11] = true;
+
+            nextBoard[9, 9] = true;
+            nextBoard[9, 10] = true;
+            nextBoard[9, 11] = true;
         }
 
-        private void DisplayBoard()
+        private void DisplayCurrentBoard()
         {
             string s;
-            for (int i = 0; i < board.GetLength(0); i++)
+            for (int i = 0; i < currentBoard.GetLength(0); i++)
             {
-                for (int j = 0; j < board.GetLength(1); j++)
+                for (int j = 0; j < currentBoard.GetLength(1); j++)
                 {
-                    s = (board[i, j]) ? ALIVE : DEAD;
+                    s = (currentBoard[i, j]) ? ALIVE : DEAD;
                     Console.Write(s + " ");
                 }
                 Console.Write("\n");
             }
+
         }
 
-        private void FillBlankBoard() 
+        private void FillBoardWithDead(bool [,] board) 
         {
             for (int i = 0; i < board.GetLength(0); i++)
             {
@@ -94,31 +105,96 @@ namespace ConwayGameOfLife
                     board[i, j] = false;
                 }
             }
-            DisplayBoard();
-        }
-        
-        public int CountTheAllField()
-        {
-            return 0;
         }
 
-        public void DecideNextGen(int number)
+        public void DecideWhoWillLiveAndWhoWillDie()
+        {
+            IterateThroughBoard();
+        }
+
+        public void IterateThroughBoard()
+        {
+
+            for (int row = 0; row < currentBoard.GetLength(0); row++)
+            {
+                for (int col = 0; col < currentBoard.GetLength(1); col++)
+                {
+                    if (currentBoard[row, col])
+                    {
+                        DecideNextCellForCurrentCell(countNeighbors(row, col), row, col);
+                    }
+                }
+            }
+            UpdateCurrentBoardToBeNextBoard();
+        }
+
+        public int countNeighbors(int row, int col)
+        {
+            int counter = 0;
+
+            if (currentBoard[row - 1, col])
+            {
+                counter++;
+            }
+            if (currentBoard[row - 1, col - 1])
+            {
+                counter++;
+            }
+            if (currentBoard[row, col - 1])
+            {
+                counter++;
+            }
+
+            if (currentBoard[row + 1, col - 1])
+            {
+                counter++;
+            }
+            if (currentBoard[row - 1, col + 1])
+            {
+                counter++;
+            }
+
+            if (currentBoard[row + 1, col])
+            {
+                counter++;
+            }
+            if (currentBoard[row + 1, col + 1])
+            {
+                counter++;
+            }
+            if (currentBoard[row, col + 1])
+            {
+                counter++;
+            }
+            return counter;
+        }
+
+        public void DecideNextCellForCurrentCell(int number, int row, int col)
         {
             if (number == 3)
             {
                 //live
+                nextBoard[row, col] = true;
             }
             else if (number == 4)
             {
                 //stay
+                nextBoard[row, col] = currentBoard[row, col];
             }
             else
             {
                 //die
+                nextBoard[row, col] = false;
             }
         }
 
-       
-    }
+        public void UpdateCurrentBoardToBeNextBoard()
+        {
+            currentBoard = nextBoard;
+            FillBoardWithDead(nextBoard);
+        }
 
+    }
 }
+
+
