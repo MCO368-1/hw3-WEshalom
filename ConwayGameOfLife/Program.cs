@@ -45,13 +45,17 @@ namespace ConwayGameOfLife
 
         private void PlayGame()
         {
+            int num = 0;
             DisplayCurrentBoard();
             while (true)
             {
                 DecideWhoWillLiveAndWhoWillDie();
                 Thread.Sleep(1000);
-                Console.Clear();
+              //  Console.Clear();
+                Console.Write("----------the next board { " + num + " } ---------------");
+                Console.WriteLine();
                 DisplayCurrentBoard();
+                num++;
             }
         }
 
@@ -119,10 +123,8 @@ namespace ConwayGameOfLife
             {
                 for (int col = 0; col < currentBoard.GetLength(1); col++)
                 {
-                    if (currentBoard[row, col])
-                    {
-                        DecideNextCellForCurrentCell(countNeighbors(row, col), row, col);
-                    }
+
+                       DecideNextCellForCurrentCell(countNeighbors(row, col), row, col);
                 }
             }
             UpdateCurrentBoardToBeNextBoard();
@@ -131,38 +133,42 @@ namespace ConwayGameOfLife
         public int countNeighbors(int row, int col)
         {
             int counter = 0;
-
-            if (currentBoard[row - 1, col])
+            
+            if (row - 1 >= 0 && currentBoard[row - 1, col])
             {
                 counter++;
             }
-            if (currentBoard[row - 1, col - 1])
+            if (row - 1 >= 0 && col - 1 >= 0 && currentBoard[row - 1, col - 1])
             {
                 counter++;
             }
-            if (currentBoard[row, col - 1])
-            {
-                counter++;
-            }
-
-            if (currentBoard[row + 1, col - 1])
-            {
-                counter++;
-            }
-            if (currentBoard[row - 1, col + 1])
+            if (col - 1 >= 0 && currentBoard[row, col - 1])
             {
                 counter++;
             }
 
-            if (currentBoard[row + 1, col])
+            if (row + 1 < currentBoard.GetLength(0) && col - 1 >= 0 && currentBoard[row + 1, col - 1])
             {
                 counter++;
             }
-            if (currentBoard[row + 1, col + 1])
+            if (row - 1 >= 0 && col + 1 < currentBoard.GetLength(1) && currentBoard[row - 1, col + 1])
             {
                 counter++;
             }
-            if (currentBoard[row, col + 1])
+
+            if (row + 1 < currentBoard.GetLength(0) && currentBoard[row + 1, col])
+            {
+                counter++;
+            }
+            if (row + 1 < currentBoard.GetLength(0) && col + 1 < currentBoard.GetLength(1) && currentBoard[row + 1, col + 1])
+            {
+                counter++;
+            }
+            if (col + 1 < currentBoard.GetLength(1) && currentBoard[row, col + 1])
+            {
+                counter++;
+            }
+            if (currentBoard[row, col])
             {
                 counter++;
             }
